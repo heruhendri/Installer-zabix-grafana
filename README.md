@@ -11,8 +11,9 @@ curl -sSO https://raw.githubusercontent.com/heruhendri/Installer-zabix-grafana/m
 ## 🚀 Fitur Utama
 - **Otomatisasi Penuh**: Menginstal MariaDB, Nginx, PHP-FPM, Zabbix Server, dan Grafana dalam satu perintah.
 - **Manajemen Port Cerdas**: Anda bisa menentukan port secara manual atau membiarkan script mencari port yang tersedia secara otomatis (sangat berguna untuk VPS dengan NAT).
+- **Pointing Domain Otomatis**: Integrasi langsung untuk memasukkan domain (FQDN) yang akan dikonfigurasi pada Nginx dan Grafana.
 - **Keamanan**: Secara otomatis menghasilkan password acak yang kuat untuk database Zabbix.
-- **Integrasi Pointing**: Menyertakan tool `Installer-Pointing` dari GitHub heruhendri untuk kemudahan konfigurasi domain.
+- **Integrasi Installer-Pointing**: Menjalankan tool pointing secara otomatis untuk menghubungkan IP VPS ke domain Anda.
 - **Dukungan OS**: Ubuntu 20.04 (Focal), 22.04 (Jammy), dan 24.04 (Noble).
 - **Stack Modern**: Menggunakan Nginx dan PHP-FPM yang lebih efisien dalam penggunaan resource (RAM/CPU) dibandingkan Apache.
 
@@ -38,13 +39,14 @@ curl -sSO https://raw.githubusercontent.com/heruhendri/Installer-zabix-grafana/m
 
 4.  **Ikuti Instruksi di Layar**
     - Anda akan diminta memilih metode konfigurasi port (Manual/Otomatis).
+    - Masukkan nama domain saat diminta (misal: `zabbix.nandatech.id`).
     - Tunggu hingga proses instalasi selesai (proses impor database mungkin memakan waktu beberapa menit).
 
 ## 🖥️ Akses Setelah Instalasi
 
 Setelah selesai, script akan menampilkan informasi akses seperti:
-- **Zabbix Web**: `http://<IP_SERVER>:<ZABBIX_PORT>`
-- **Grafana**: `http://<IP_SERVER>:<GRAFANA_PORT>`
+- **Zabbix Web**: `http://domain-anda.com:port`
+- **Grafana**: `http://domain-anda.com:port`
 - **Zabbix DB Password**: (Tersimpan dalam log output terminal)
 
 ## 📂 Struktur Lokasi

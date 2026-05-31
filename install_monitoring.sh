@@ -40,6 +40,11 @@ else
     echo "✅ Port otomatis terpilih -> Zabbix: $ZABBIX_PORT | Grafana: $GRAFANA_PORT"
 fi
 
+# 3.1 Input Domain
+echo "------------------------------------------"
+read -p "Masukkan Domain untuk Zabbix (misal: zabbix.nandatech.id): " ZABBIX_DOMAIN
+read -p "Masukkan Domain untuk Grafana (misal: grafana.nandatech.id): " GRAFANA_DOMAIN
+
 # 4. Update & Install Dependencies Dasar (Mengganti apache2 dengan nginx)
 echo "📦 Mengupdate sistem dan menginstal dependensi dasar..."
 apt update && apt upgrade -y
@@ -68,11 +73,11 @@ mysql -e "SET GLOBAL log_bin_trust_function_creators = 0;"
 # Konfigurasi Password DB di Zabbix Server
 sed -i "s/# DBPassword=/DBPassword=${DB_PASS}/g" /etc/zabbix/zabbix_server.conf
 
-# Ubah Port Zabbix di Nginx
-echo "🌐 Mengkonfigurasi Nginx untuk Zabbix di port $ZABBIX_PORT..."
+# Ubah Port & Domain Zabbix di Nginx
+echo "🌐 Mengkonfigurasi Nginx untuk Zabbix di domain $ZABBIX_DOMAIN port $ZABBIX_PORT..."
 # Mengaktifkan listen port dan server_name di file konfigurasi Nginx bawaan Zabbix
 sed -i "s/# listen 8080;/listen ${ZABBIX_PORT};/g" /etc/zabbix/nginx.conf
-sed -i "s/# server_name example.com;/server_name _;/g" /etc/zabbix/nginx.conf
+sed -i "s/# server_name example.com;/server_name ${ZABBIX_DOMAIN};/g" /etc/zabbix/nginx.conf
 
 # 6. Install Grafana
 echo "📈 Menginstal Grafana..."
@@ -82,9 +87,10 @@ echo "deb [signed-by=/usr/share/keyrings/grafana.key] https://apt.grafana.com st
 apt-get update
 apt-get install -y grafana
 
-# Ubah Port Grafana
-echo "⚙️ Mengubah port Grafana ke $GRAFANA_PORT..."
+# Konfigurasi Port & Domain Grafana
+echo "⚙️ Mengkonfigurasi Grafana (Port: $GRAFANA_PORT, Domain: $GRAFANA_DOMAIN)..."
 sed -i "s/;http_port = 3000/http_port = ${GRAFANA_PORT}/g" /etc/grafana/grafana.ini
+sed -i "s/;domain = localhost/domain = ${GRAFANA_DOMAIN}/g" /etc/grafana/grafana.ini
 
 # 7. Integrasi Installer Pointing (GitHub heruhendri)
 echo "🔗 Mengunduh Installer-Pointing dari GitHub..."
@@ -94,7 +100,14 @@ if [ -d "Installer-Pointing" ]; then
 fi
 git clone https://github.com/heruhendri/Installer-Pointing.git
 cd Installer-Pointing
-chmod +x *
+chmod +x point.sh 2>/dev/null || chmod +x *.sh
+
+# Eksekusi pointing otomatis (asumsi script point.sh menerima argumen domain)
+if [ -f "point.sh" ]; then
+    echo "🚀 Menjalankan pointing otomatis untuk $ZABBIX_DOMAIN dan $GRAFANA_DOMAIN..."
+    ./point.sh "$ZABBIX_DOMAIN"
+    ./point.sh "$GRAFANA_DOMAIN"
+fi
 
 # 8. Restart & Enable Services
 echo "🔄 Merestart dan mengaktifkan semua layanan..."
@@ -107,8 +120,8 @@ systemctl restart php*-fpm || true
 echo "=========================================="
 echo "🎉 INSTALASI SELESAI (NGINX VERSION)!"
 echo "=========================================="
-echo "Zabbix Web UI : http://<IP_VPS>:$ZABBIX_PORT"
-echo "Grafana UI    : http://<IP_VPS>:$GRAFANA_PORT"
+echo "Zabbix Web UI : http://$ZABBIX_DOMAIN:$ZABBIX_PORT"
+echo "Grafana UI    : http://$GRAFANA_DOMAIN:$GRAFANA_PORT"
 echo "Zabbix DB Pass: $DB_PASS (Simpan ini baik-baik!)"
 echo "------------------------------------------"
 echo "Tool Installer-Pointing Anda sudah di-clone ke: /opt/Installer-Pointing"
